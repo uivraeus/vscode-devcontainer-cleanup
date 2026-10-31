@@ -12,6 +12,13 @@ run it only when the relevant devcontainers are stopped. It keeps the newest
 bundle by directory modification time for each platform; timestamp-suffixed
 partial-install directories are always removed.
 
+It also prunes the extension download cache (`vscode-server/extensionsCache`),
+which accumulates one package per extension version and can be larger than the
+server bundles. Entries are grouped generically by parsing
+`<id>-<version>[-<target platform>]` (companion `.sigzip` files go with their
+version), and the newest versions by version number are kept. Names that
+cannot be parsed are skipped. Use `--no-extensions` to leave the cache alone.
+
 ## Usage
 
 From this repository:
@@ -29,13 +36,14 @@ Options:
 | Option | Default | Description |
 | --- | --- | --- |
 | `-n`, `--dry-run` | off | Report planned deletions without changing the volume. |
-| `-k`, `--keep N` | `1` | Number of bundles to retain per platform (minimum 1). |
+| `-k`, `--keep N` | `1` | Number to retain: server bundles per platform, and cached versions per extension (minimum 1). |
+| `-E`, `--no-extensions` | off | Do not prune the extension download cache. |
 | `-p`, `--pattern STR` | `vsc-` | Substring used to choose a local helper image. |
 | `-v`, `--volume NAME` | `vscode` | Docker volume to inspect and prune. |
 | `-h`, `--help` | | Show help. |
 
 The script prints volume and `bin/` sizes before and after pruning, plus each
-bundle's size and disposition. Review the dry-run output before the first
+bundle's or cached extension's size and disposition. Review the dry-run output before the first
 prune. Other VS Code instances may need to download/install a server bundle
 again if they later require a commit that was removed.
 
